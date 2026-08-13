@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KisanYantra — Tractor Rental Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body style="overflow-x:hidden;">
+
+<div id="toast"></div>
+
+<!-- ════════════════════════════════════════
+     AUTH PAGE
+════════════════════════════════════════ -->
+<div id="page-auth" class="page active">
+  <div class="lang-toggle-mini">
+    <button id="auth-lang-en" onclick="setLanguage('en')">EN</button>
+    <button id="auth-lang-te" onclick="setLanguage('te')">తె</button>
+  </div>
+  <div class="auth-hero">
+    <svg class="auth-floating-tractor" viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="40" width="120" height="60" rx="8" fill="white"/>
+      <rect x="100" y="20" width="60" height="50" rx="6" fill="white"/>
+      <circle cx="50" cy="110" r="28" fill="white"/>
+      <circle cx="150" cy="110" r="18" fill="white"/>
+      <rect x="0" y="85" width="30" height="8" rx="4" fill="white"/>
+    </svg>
+    <div class="auth-logo">KisanYantra</div>
+    <div class="auth-tagline" data-i18n="brand_tagline">Tractor Rental Platform</div>
+    <div class="auth-stats">
+      <div class="auth-stat">
+        <div class="auth-stat-num" id="hero-tractors">0</div>
+        <div class="auth-stat-label" data-i18n="stat_tractors">Tractors</div>
+      </div>
+      <div class="auth-stat">
+        <div class="auth-stat-num" id="hero-bookings">0</div>
+        <div class="auth-stat-label" data-i18n="stat_bookings">Bookings</div>
+      </div>
+      <div class="auth-stat">
+        <div class="auth-stat-num" id="hero-users">0</div>
+        <div class="auth-stat-label" data-i18n="stat_members">Members</div>
+      </div>
+    </div>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-panel-title" data-i18n="auth_welcome_back">Welcome back</div>
+    <div class="auth-panel-sub" data-i18n="auth_signin_sub">Sign in to continue to your dashboard</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')" data-i18n="tab_login">Login</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')" data-i18n="tab_register">Register</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label" data-i18n="label_username">Username</label>
+        <input type="text" class="form-control" id="loginUsername" placeholder="Enter your username" data-i18n-placeholder="ph_login_username" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="label_password">Password</label>
+        <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-primary-auth" data-i18n="btn_login">Login →</button>
+      <div style="text-align:center;font-size:12px;color:#aaa;margin-top:8px;">
+        <span data-i18n="demo_label">Demo</span>: admin/admin | owner1/pass | user1/pass
+      </div>
+    </form>
+
+    <!-- REGISTER FORM -->
+    <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+      <div class="form-group">
+        <label class="form-label" data-i18n="label_username">Username</label>
+        <input type="text" class="form-control" id="regUsername" placeholder="Choose a username" data-i18n-placeholder="ph_reg_username" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="label_password">Password</label>
+        <input type="password" class="form-control" id="regPassword" placeholder="Create a password" data-i18n-placeholder="ph_reg_password" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="label_iam">I am a...</label>
+        <div class="role-select-grid">
+          <div class="role-option selected" onclick="selectRole('USER',this)">
+            <div class="role-icon">👤</div>
+            <div class="role-name" data-i18n="role_user">User</div>
+          </div>
+          <div class="role-option" onclick="selectRole('OWNER',this)">
+            <div class="role-icon">🚜</div>
+            <div class="role-name" data-i18n="role_owner">Owner</div>
+          </div>
+          <div class="role-option" onclick="selectRole('ADMIN',this)">
+            <div class="role-icon">⚙️</div>
+            <div class="role-name" data-i18n="role_admin">Admin</div>
+          </div>
+        </div>
+        <input type="hidden" id="regRole" value="USER">
+      </div>
+      <button type="submit" class="btn-primary-auth" data-i18n="btn_create_account">Create Account →</button>
+    </form>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     ADMIN DASHBOARD
+════════════════════════════════════════ -->
+<div id="page-admin" class="page">
+  <nav class="topnav">
+    <div class="nav-brand">Kisan<span>Yantra</span></div>
+    <span class="live-indicator"><span class="live-dot" id="admin-live-dot"></span><span data-i18n="live_on">Live</span></span>
+    <span class="nav-user-badge" id="admin-user-name">admin</span>
+    <span class="nav-role-badge role-admin" data-i18n="role_badge_admin">⚙️ Admin</span>
+    <button class="btn-settings" onclick="openSettings()">⚙️ <span data-i18n="nav_settings">Settings</span></button>
+    <button class="btn-logout" onclick="logout()" data-i18n="nav_logout">Logout</button>
+  </nav>
+  <div class="dashboard-body">
+    <div class="dashboard-header">
+      <div class="dashboard-title" data-i18n="admin_title">Admin Dashboard</div>
+      <div class="dashboard-subtitle" data-i18n="admin_subtitle">Full system control &amp; oversight</div>
+    </div>
+    <div class="dashboard-content">
+      <div class="stats-grid stats-grid-4" style="margin-bottom:32px;">
+        <div class="stat-card dark">
+          <span class="stat-emoji">🚜</span>
+          <div class="stat-num" id="a-total-tractors">0</div>
+          <div class="stat-label" data-i18n="stat_total_tractors">Total Tractors</div>
+        </div>
+        <div class="stat-card green">
+          <span class="stat-emoji">✅</span>
+          <div class="stat-num" id="a-available">0</div>
+          <div class="stat-label" data-i18n="stat_available">Available</div>
+        </div>
+        <div class="stat-card rust">
+          <span class="stat-emoji">📋</span>
+          <div class="stat-num" id="a-reserved">0</div>
+          <div class="stat-label" data-i18n="stat_reserved">Reserved</div>
+        </div>
+        <div class="stat-card amber">
+          <span class="stat-emoji">📦</span>
+          <div class="stat-num" id="a-bookings">0</div>
+          <div class="stat-label" data-i18n="stat_total_bookings">Total Bookings</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:380px 1fr;gap:24px;margin-bottom:32px;">
+        <!-- Add Tractor Form -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title" data-i18n="card_add_new_tractor">Add New Tractor</span>
+            <span>🚜</span>
+          </div>
+          <div class="card-body">
+            <div class="form-row form-row-2">
+              <div class="input-group">
+                <label class="input-label" data-i18n="label_reg_number">Reg. Number</label>
+                <input type="text" id="a-regNum" placeholder="AP01AB1234">
+              </div>
+              <div class="input-group">
+                <label class="input-label" data-i18n="label_tractor_type">Tractor Type</label>
+                <input type="text" id="a-tractorType" placeholder="Mahindra 575">
+              </div>
+            </div>
+            <div class="form-row form-row-2">
+              <div class="input-group">
+                <label class="input-label" data-i18n="label_location">Location</label>
+                <input type="text" id="a-location" placeholder="Vijayawada">
+              </div>
+              <div class="input-group">
+                <label class="input-label" data-i18n="label_rent_hour">Rent / Hour (₹)</label>
+                <input type="number" id="a-rent" placeholder="500">
+              </div>
+            </div>
+            <div class="input-group" style="margin-bottom:16px;">
+              <label class="input-label" data-i18n="label_owner_username">Owner Username</label>
+              <select id="a-owner">
+                <option value="" data-i18n="select_owner_placeholder">Select Owner</option>
+              </select>
+            </div>
+            <div class="input-group" style="margin-bottom:16px;">
+              <label class="input-label" data-i18n="label_accessories">Accessories</label>
+              <div class="accessories-grid" id="admin-acc-grid"></div>
+            </div>
+            <button class="btn btn-green" style="width:100%;padding:12px;" onclick="adminAddTractor()" data-i18n="btn_add_tractor">Add Tractor</button>
+          </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title" data-i18n="card_registered_users">Registered Users</span>
+            <span>👥</span>
+          </div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>#</th><th data-i18n="th_username">Username</th><th data-i18n="th_role">Role</th><th data-i18n="th_joined">Joined</th><th data-i18n="th_action">Action</th></tr></thead>
+                <tbody id="a-users-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tractors Table -->
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+          <span class="card-title" data-i18n="card_all_tractors">All Tractors</span>
+          <div class="btn-group">
+            <input type="text" id="a-search" placeholder="Search tractors..." data-i18n-placeholder="ph_search_tractors" style="width:220px;padding:8px 12px;font-size:13px;" oninput="renderAdminTractors()">
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th data-i18n="th_id">ID</th><th data-i18n="th_reg_no">Reg No.</th><th data-i18n="th_type">Type</th><th data-i18n="th_owner">Owner</th><th data-i18n="th_location">Location</th><th data-i18n="th_status">Status</th><th data-i18n="th_rent_hr">Rent/Hr</th><th data-i18n="th_accessories">Accessories</th><th data-i18n="th_actions">Actions</th></tr></thead>
+              <tbody id="a-tractors-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Bookings Table -->
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+          <span class="card-title" data-i18n="card_all_bookings">All Bookings</span>
+          <span>📋</span>
+        </div>
+        <div class="card-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th data-i18n="th_id">ID</th><th data-i18n="th_tractor">Tractor</th><th data-i18n="th_customer">Customer</th><th data-i18n="th_date">Date</th><th data-i18n="th_slot">Slot</th><th data-i18n="th_hours">Hours</th><th data-i18n="th_amount">Amount</th><th data-i18n="th_payment">Payment</th><th data-i18n="th_status">Status</th><th data-i18n="th_actions">Actions</th></tr></thead>
+              <tbody id="a-bookings-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support Tickets -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title" data-i18n="card_support_tickets">Support Tickets</span>
+          <span>🎫</span>
+        </div>
+        <div class="card-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th data-i18n="th_ticket_id">Ticket</th><th data-i18n="th_customer">Customer</th><th data-i18n="th_category">Category</th><th data-i18n="th_issue">Issue</th><th data-i18n="th_status">Status</th><th data-i18n="th_actions">Actions</th></tr></thead>
+              <tbody id="a-tickets-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     OWNER DASHBOARD
+════════════════════════════════════════ -->
+<div id="page-owner" class="page">
+  <nav class="topnav">
+    <div class="nav-brand">Kisan<span>Yantra</span></div>
+    <span class="live-indicator"><span class="live-dot" id="owner-live-dot"></span><span data-i18n="live_on">Live</span></span>
+    <span class="nav-user-badge" id="owner-user-name">owner</span>
+    <span class="nav-role-badge role-owner" data-i18n="role_badge_owner">🚜 Owner</span>
+    <button class="btn-settings" onclick="openSettings()">⚙️ <span data-i18n="nav_settings">Settings</span></button>
+    <button class="btn-logout" onclick="logout()" data-i18n="nav_logout">Logout</button>
+  </nav>
+  <div class="dashboard-body">
+    <div class="dashboard-header">
+      <div class="dashboard-title" id="owner-welcome">My Dashboard</div>
+      <div class="dashboard-subtitle" data-i18n="owner_subtitle">Manage your tractors and track earnings</div>
+    </div>
+    <div class="dashboard-content">
+      <div class="stats-grid stats-grid-3" style="margin-bottom:28px;">
+        <div class="stat-card orange">
+          <span class="stat-emoji">📋</span>
+          <div class="stat-num" id="o-total-bookings">0</div>
+          <div class="stat-label" data-i18n="stat_total_bookings">Total Bookings</div>
+        </div>
+        <div class="stat-card green">
+          <span class="stat-emoji">💰</span>
+          <div class="stat-num" id="o-revenue">₹0</div>
+          <div class="stat-label" data-i18n="stat_total_revenue">Total Revenue</div>
+        </div>
+        <div class="stat-card dark">
+          <span class="stat-emoji">🚜</span>
+          <div class="stat-num" id="o-my-tractors">0</div>
+          <div class="stat-label" data-i18n="stat_my_tractors">My Tractors</div>
+        </div>
+      </div>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchOwnerTab('bookings',this)">📋 <span data-i18n="tab_bookings">Bookings</span></button>
+        <button class="tab-btn" onclick="switchOwnerTab('my-tractors',this)">🚜 <span data-i18n="tab_my_tractors">My Tractors</span></button>
+        <button class="tab-btn" onclick="switchOwnerTab('add-tractor',this)">➕ <span data-i18n="tab_add_tractor">Add Tractor</span></button>
+      </div>
+
+      <!-- Bookings Tab -->
+      <div class="tab-panel active" id="owner-tab-bookings">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title" data-i18n="card_booking_requests">Booking Requests</span>
+            <span>📋</span>
+          </div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th data-i18n="th_tractor">Tractor</th><th data-i18n="th_customer">Customer</th><th data-i18n="th_date">Date</th><th data-i18n="th_slot">Slot</th><th data-i18n="th_hours">Hours</th><th data-i18n="th_amount">Amount</th><th data-i18n="th_payment">Payment</th><th data-i18n="th_status">Status</th><th data-i18n="th_action">Action</th></tr></thead>
+                <tbody id="o-bookings-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Tractors Tab -->
+      <div class="tab-panel" id="owner-tab-my-tractors">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title" data-i18n="tab_my_tractors">My Tractors</span>
+          </div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th data-i18n="th_reg_no">Reg No.</th><th data-i18n="th_type">Type</th><th data-i18n="th_location">Location</th><th data-i18n="th_rent_hr">Rent/Hr</th><th data-i18n="th_status">Status</th><th data-i18n="th_accessories">Accessories</th><th data-i18n="th_actions">Actions</th></tr></thead>
+                <tbody id="o-tractors-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Tractor Tab -->
+      <div class="tab-panel" id="owner-tab-add-tractor">
+        <div class="card" style="max-width:600px;">
+          <div class="card-header">
+            <span class="card-title" data-i18n="card_add_new_tractor">Add New Tractor</span>
+          </div>
+          <div class="card-body">
+            <div class="form-row form-row-2">
+              <div class="input-group">
+                <label class="input-label" data-i18n="label_reg_number">Reg. Number</label>
+                <input type="text" id="o-regNum" placeholder="AP01AB1234">
+              </div>
+              <div class="input-group">
+                <label class="input-label" data-i18n="label_tractor_type">Tractor Type</label>
+                <input type="text" id="o-tractorType" placeholder="Mahindra 575">
+              </div>
+            </div>
+            <div class="form-row form-row-2">
+              <div class="input-group">
+                <label class="input-label" data-i18n="label_location">Location</label>
+                <input type="text" id="o-location" placeholder="City / Village">
+              </div>
+              <div class="input-group">
+                <label class="input-label" data-i18n="label_rent_hour">Rent / Hour (₹)</label>
+                <input type="number" id="o-rent" placeholder="500">
+              </div>
+            </div>
+            <div class="input-group" style="margin-bottom:20px;">
+              <label class="input-label" data-i18n="label_accessories_avail">Accessories Available</label>
+              <div class="accessories-grid" id="owner-acc-grid"></div>
+            </div>
+            <button class="btn btn-green" style="width:100%;padding:12px;" onclick="ownerAddTractor()" data-i18n="btn_add_my_tractor">Add My Tractor</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     USER DASHBOARD
+════════════════════════════════════════ -->
+<div id="page-user" class="page">
+  <nav class="topnav">
+    <div class="nav-brand">Kisan<span>Yantra</span></div>
+    <span class="nav-user-badge" id="user-user-name">user</span>
+    <span class="nav-role-badge role-user">👤 Farmer</span>
+    <span class="live-indicator"><span class="live-dot" id="user-live-dot"></span><span data-i18n="live_on">Live</span></span>
+    <button class="btn-settings" onclick="openSettings()">⚙️ <span data-i18n="nav_settings">Settings</span></button>
+    <button class="btn-logout" onclick="logout()" data-i18n="nav_logout">Logout</button>
+  </nav>
+  <div class="dashboard-body">
+    <div class="dashboard-header">
+      <div class="dashboard-title" data-i18n="user_title">Find a Tractor</div>
+      <div class="dashboard-subtitle" data-i18n="user_subtitle">Browse available tractors and book your slot instantly</div>
+    </div>
+    <div class="dashboard-content">
+      <div class="stats-grid stats-grid-3" style="margin-bottom:32px;">
+        <div class="stat-card green">
+          <span class="stat-emoji">🚜</span>
+          <div class="stat-num" id="u-available">0</div>
+          <div class="stat-label" data-i18n="stat_available_now">Available Now</div>
+        </div>
+        <div class="stat-card amber">
+          <span class="stat-emoji">📋</span>
+          <div class="stat-num" id="u-my-bookings">0</div>
+          <div class="stat-label" data-i18n="stat_my_bookings">My Bookings</div>
+        </div>
+        <div class="stat-card dark">
+          <span class="stat-emoji">💸</span>
+          <div class="stat-num" id="u-spent">₹0</div>
+          <div class="stat-label" data-i18n="stat_total_spent">Total Spent</div>
+        </div>
+      </div>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchUserTab('browse',this)">🚜 <span data-i18n="tab_browse">Browse Tractors</span></button>
+        <button class="tab-btn" onclick="switchUserTab('history',this)">📋 <span data-i18n="tab_history">My Bookings</span></button>
+      </div>
+
+      <!-- Browse Tab -->
+      <div class="tab-panel active" id="user-tab-browse">
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="u-search" placeholder="Search by type or registration..." data-i18n-placeholder="ph_search_type_reg" oninput="renderUserTractors()">
+          </div>
+          <div class="search-input-wrap" style="max-width:220px;">
+            <span class="search-icon">📍</span>
+            <input type="text" id="u-location-search" placeholder="Filter by location..." data-i18n-placeholder="ph_filter_location" oninput="renderUserTractors()">
+          </div>
+          <select id="u-acc-filter" onchange="renderUserTractors()" style="width:180px;flex-shrink:0;">
+            <option value="" data-i18n="all_accessories">All Accessories</option>
+          </select>
+        </div>
+        <div class="tractor-grid" id="u-tractor-grid"></div>
+      </div>
+
+      <!-- History Tab -->
+      <div class="tab-panel" id="user-tab-history">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title" data-i18n="card_my_booking_history">My Booking History</span>
+          </div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th data-i18n="th_tractor">Tractor</th><th data-i18n="th_date">Date</th><th data-i18n="th_slot">Slot</th><th data-i18n="th_hours">Hours</th><th data-i18n="th_accessories">Accessories</th><th data-i18n="th_amount">Amount</th><th data-i18n="th_payment">Payment</th><th data-i18n="th_status">Status</th><th data-i18n="th_action">Action</th></tr></thead>
+                <tbody id="u-history-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     BOOKING MODAL
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="bookingModalOverlay">
+  <div class="modal">
+    <div class="modal-title" data-i18n="modal_book_tractor">🚜 Book Tractor</div>
+    <input type="hidden" id="bk-tractorId">
+    <input type="hidden" id="bk-rentPerHour">
+
+    <div class="form-row form-row-2" style="margin-bottom:16px;">
+      <div class="input-group">
+        <label class="input-label" data-i18n="label_tractor">Tractor</label>
+        <input type="text" id="bk-tractorDisplay" readonly>
+      </div>
+      <div class="input-group">
+        <label class="input-label" data-i18n="label_booking_date">Booking Date</label>
+        <input type="date" id="bk-date">
+      </div>
+    </div>
+
+    <div class="input-group" style="margin-bottom:16px;">
+      <label class="input-label" data-i18n="label_select_slot">Select Time Slot</label>
+      <div class="slots-visual">
+        <label class="slot-chip selected" onclick="selectSlot(this,'Morning (5AM - 9AM)')">
+          <input type="radio" name="slot" value="Morning (5AM - 9AM)" checked>
+          <div class="slot-name"><span data-i18n="slot_morning_name">🌅 Morning</span></div>
+          <div class="slot-time">5AM – 9AM</div>
+        </label>
+        <label class="slot-chip" onclick="selectSlot(this,'Afternoon (1PM - 4PM)')">
+          <input type="radio" name="slot" value="Afternoon (1PM - 4PM)">
+          <div class="slot-name"><span data-i18n="slot_afternoon_name">☀️ Afternoon</span></div>
+          <div class="slot-time">1PM – 4PM</div>
+        </label>
+        <label class="slot-chip" onclick="selectSlot(this,'Evening (6PM - 10PM)')">
+          <input type="radio" name="slot" value="Evening (6PM - 10PM)">
+          <div class="slot-name"><span data-i18n="slot_evening_name">🌙 Evening</span></div>
+          <div class="slot-time">6PM – 10PM</div>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-row form-row-2" style="margin-bottom:16px;">
+      <div class="input-group">
+        <label class="input-label" data-i18n="label_num_hours">Number of Hours</label>
+        <input type="number" id="bk-hours" min="1" max="12" value="2" oninput="calcBookingTotal()">
+      </div>
+      <div class="input-group">
+        <label class="input-label" data-i18n="label_payment_method">Payment Method</label>
+        <select id="bk-payment">
+          <option value="UPI">UPI</option>
+          <option value="Cash">Cash</option>
+          <option value="Card">Card</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="input-group" style="margin-bottom:16px;">
+      <label class="input-label" data-i18n="label_select_accessories">Select Accessories</label>
+      <div class="accessories-grid" id="bk-acc-grid"></div>
+    </div>
+
+    <div class="total-box">
+      <div>
+        <div class="total-box-label" data-i18n="label_total_amount">Total Amount</div>
+        <div style="font-size:11px;opacity:0.7;margin-top:2px;" id="bk-calc-hint">2 hrs × ₹0/hr</div>
+      </div>
+      <div class="total-box-amount" id="bk-total">₹0</div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('bookingModalOverlay')" data-i18n="btn_cancel">Cancel</button>
+      <button class="btn btn-green" onclick="confirmBooking()" style="padding:12px 28px;" data-i18n="btn_confirm_booking">Confirm Booking ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     EDIT TRACTOR MODAL
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="editTractorModalOverlay">
+  <div class="modal">
+    <div class="modal-title" data-i18n="modal_edit_tractor">✏️ Edit Tractor</div>
+    <input type="hidden" id="et-id">
+    <div class="form-row form-row-2" style="margin-bottom:16px;">
+      <div class="input-group">
+        <label class="input-label" data-i18n="label_reg_number">Reg. Number</label>
+        <input type="text" id="et-regNum">
+      </div>
+      <div class="input-group">
+        <label class="input-label" data-i18n="th_type">Type</label>
+        <input type="text" id="et-type">
+      </div>
+    </div>
+    <div class="form-row form-row-2" style="margin-bottom:16px;">
+      <div class="input-group">
+        <label class="input-label" data-i18n="label_location">Location</label>
+        <input type="text" id="et-location">
+      </div>
+      <div class="input-group">
+        <label class="input-label" data-i18n="label_rent_hr_short">Rent / Hr (₹)</label>
+        <input type="number" id="et-rent">
+      </div>
+    </div>
+    <div class="input-group" style="margin-bottom:20px;">
+      <label class="input-label" data-i18n="label_accessories">Accessories</label>
+      <div class="accessories-grid" id="et-acc-grid"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('editTractorModalOverlay')" data-i18n="btn_cancel">Cancel</button>
+      <button class="btn btn-amber" onclick="saveTractorEdit()" style="padding:12px 28px;" data-i18n="btn_save_changes">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SETTINGS MODAL (Language + Help & Support)
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="settingsModalOverlay">
+  <div class="modal">
+    <div class="modal-title" data-i18n="settings_title">⚙️ Settings</div>
+
+    <div class="settings-tabs">
+      <button class="settings-tab-btn active" id="settings-tab-btn-language" onclick="switchSettingsTab('language')" data-i18n="settings_tab_language">🌐 Language</button>
+      <button class="settings-tab-btn" id="settings-tab-btn-help" onclick="switchSettingsTab('help')" data-i18n="settings_tab_help">🆘 Help &amp; Support</button>
+    </div>
+
+    <!-- LANGUAGE PANEL -->
+    <div class="settings-panel active" id="settings-panel-language">
+      <div class="help-intro" data-i18n="lang_choose">Choose your app language</div>
+      <div class="lang-option-grid">
+        <div class="lang-option-card" id="lang-card-en" onclick="setLanguage('en')">
+          <div class="lang-option-flag">🇬🇧</div>
+          <div class="lang-option-name">English</div>
+          <div class="lang-option-sub">EN</div>
+        </div>
+        <div class="lang-option-card" id="lang-card-te" onclick="setLanguage('te')">
+          <div class="lang-option-flag">🇮🇳</div>
+          <div class="lang-option-name">తెలుగు</div>
+          <div class="lang-option-sub">TE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HELP & SUPPORT PANEL -->
+    <div class="settings-panel" id="settings-panel-help">
+      <div id="help-content"><!-- rendered dynamically by renderHelpHome() --></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('settingsModalOverlay')" data-i18n="btn_close">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.history.scrollRestoration = "manual";
+window.scrollTo(0,0);
+</script>
+
+<script src="js/app.js"></script>
+</body>
+</html>
+</body>
+</html>
