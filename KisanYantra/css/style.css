@@ -23,8 +23,13 @@ body {
 }
 
 /* ═══ PAGE ROUTING ═══ */
-.page { display:none; }
-.page.active { display:block; }
+.page {
+    display: none !important;
+}
+
+.page.active {
+    display: block !important;
+}
 
 /* ═══ SCROLLBAR ═══ */
 ::-webkit-scrollbar { width: 6px; }
@@ -609,4 +614,150 @@ input[readonly] { background: rgba(0,0,0,0.04); cursor: default; }
   .stats-grid-4, .stats-grid-3, .stats-grid-2 { grid-template-columns: 1fr 1fr; }
   .tractor-grid { grid-template-columns: 1fr; }
   .auth-panel { padding: 32px 24px; }
+}
+
+/* ═══════════════════════════════════════════════════
+   SETTINGS & HELP ASSISTANT (added)
+═══════════════════════════════════════════════════ */
+
+/* Settings button in the nav bar (admin/owner/user) */
+.btn-settings {
+  padding: 8px 16px; border-radius: 8px;
+  background: transparent; border: 1.5px solid rgba(255,255,255,0.25);
+  color: #ccc; cursor: pointer;
+  font-size: 13px; font-family: 'DM Sans', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+  transition: all 0.2s;
+}
+.btn-settings:hover { background: var(--leaf); border-color: var(--leaf); color: white; }
+
+/* Mini EN/TE toggle on the auth (login/register) page */
+.lang-toggle-mini {
+  position: absolute; top: 20px; right: 20px; z-index: 5;
+  display: flex; gap: 4px;
+  background: rgba(255,255,255,0.08); border-radius: 20px; padding: 4px;
+  backdrop-filter: blur(6px);
+}
+.lang-toggle-mini button {
+  border: none; background: transparent; color: var(--sand);
+  padding: 6px 14px; border-radius: 16px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700;
+  transition: all 0.2s;
+}
+.lang-toggle-mini button.active { background: var(--wheat); color: var(--dusk); }
+
+/* Settings modal — Language / Help tabs */
+.settings-tabs {
+  display: flex; gap: 4px;
+  background: rgba(0,0,0,0.06); border-radius: 12px;
+  padding: 4px; margin-bottom: 24px;
+}
+.settings-tab-btn {
+  flex: 1; padding: 10px; border: none; background: transparent;
+  border-radius: 8px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+  color: var(--mud); transition: all 0.2s;
+}
+.settings-tab-btn.active {
+  background: white; color: var(--leaf-dark);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.settings-panel { display: none; }
+.settings-panel.active { display: block; }
+
+/* Language picker cards */
+.lang-option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+.lang-option-card {
+  border: 2px solid rgba(0,0,0,0.1); border-radius: 14px;
+  padding: 20px 12px; text-align: center; cursor: pointer;
+  background: white; transition: all 0.2s;
+}
+.lang-option-card:hover { border-color: var(--leaf); transform: translateY(-2px); }
+.lang-option-card.selected { border-color: var(--leaf); background: rgba(74,124,63,0.08); }
+.lang-option-flag { font-size: 28px; margin-bottom: 6px; }
+.lang-option-name { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--soil); font-weight: 700; }
+.lang-option-sub { font-family: 'Space Mono', monospace; font-size: 11px; color: #999; margin-top: 2px; }
+
+/* Help Assistant — topic grid + free-text ask */
+.help-intro { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--soil); margin-bottom: 16px; }
+.help-topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.help-topic-card {
+  display: flex; align-items: center; gap: 10px;
+  border: 2px solid rgba(0,0,0,0.08); border-radius: 12px;
+  padding: 12px 14px; cursor: pointer; background: white;
+  transition: all 0.15s; text-align: left;
+}
+.help-topic-card:hover { border-color: var(--leaf); background: rgba(74,124,63,0.05); }
+.help-topic-icon { font-size: 20px; flex-shrink: 0; }
+.help-topic-title { font-size: 13px; font-weight: 700; color: var(--soil); }
+.help-topic-desc { font-size: 11px; color: #888; margin-top: 1px; }
+
+.help-divider { border: none; border-top: 2px solid var(--wheat-light); margin: 20px 0; }
+
+.help-ask-row { display: flex; gap: 8px; }
+.help-ask-row input { flex: 1; }
+
+/* Guided step list inside a topic */
+.help-steps-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 12px 0 20px; }
+.help-steps-list li {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: rgba(74,124,63,0.06); border-radius: 10px; padding: 12px 14px;
+  font-size: 14px; color: var(--soil); line-height: 1.5;
+}
+.help-step-num {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--leaf); color: white; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.help-resolved-row { display: flex; gap: 10px; margin-top: 8px; }
+.help-resolved-row .btn { flex: 1; }
+
+/* Free-text Gemini chat */
+.help-chat-window {
+  max-height: 260px; overflow-y: auto; display: flex; flex-direction: column;
+  gap: 10px; margin-bottom: 12px; padding-right: 4px;
+}
+.help-chat-bubble {
+  max-width: 85%; padding: 10px 14px; border-radius: 14px;
+  font-size: 13px; line-height: 1.5;
+}
+.help-chat-bubble.user {
+  align-self: flex-end; background: var(--leaf); color: white;
+  border-bottom-right-radius: 4px;
+}
+.help-chat-bubble.assistant {
+  align-self: flex-start; background: rgba(0,0,0,0.06); color: var(--soil);
+  border-bottom-left-radius: 4px;
+}
+.help-chat-bubble.typing { font-style: italic; opacity: 0.7; }
+.help-chat-disclaimer { font-size: 11px; color: #999; margin-top: 6px; text-align: center; }
+
+/* Ticket confirmation + "My Support Tickets" list */
+.ticket-confirm-box { text-align: center; padding: 24px 12px; }
+.ticket-confirm-box .ticket-emoji { font-size: 44px; display: block; margin-bottom: 10px; }
+.ticket-id-badge {
+  display: inline-block; margin-top: 10px; padding: 6px 14px;
+  background: var(--wheat); color: var(--dusk); border-radius: 20px;
+  font-family: 'Space Mono', monospace; font-weight: 700; font-size: 13px;
+}
+.my-tickets-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.my-ticket-item {
+  border: 2px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 12px 14px;
+  background: white;
+}
+.my-ticket-item-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 4px; }
+.my-ticket-reply {
+  margin-top: 8px; padding: 8px 10px; background: rgba(74,124,63,0.08);
+  border-radius: 8px; font-size: 12px; color: var(--soil);
+}
+
+/* Ticket status badges (Admin table + My Tickets) */
+.badge-open { background: rgba(230,126,34,0.15); color: #c0392b; }
+.badge-inprogress { background: rgba(230,126,34,0.15); color: #b8860b; }
+.badge-resolved { background: rgba(74,124,63,0.15); color: var(--leaf-dark); }
+
+@media (max-width: 600px) {
+  .help-topic-grid { grid-template-columns: 1fr; }
+  .lang-option-grid { grid-template-columns: 1fr; }
+  .lang-toggle-mini { position: static; margin: 16px auto 0; width: fit-content; }
 }
